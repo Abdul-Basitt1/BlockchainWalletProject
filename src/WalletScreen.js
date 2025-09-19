@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import 'react-native-get-random-values';
 import { initDB, insertWallet, getWallets, getChains, insertAccounts, getAccountsByWallet, deleteWallet } from './db';
 import { generateMnemonic, validateMnemonic, deriveEvmAccountFromMnemonic } from './WalletService';
 
-const CHAINS_TO_SHOW = [1, 137, 56]; // ETH, Polygon, BSC
+const CHAINS_TO_SHOW = [1, 137, 56]; // ETH, Polygon, BNB respectively
 
 export default function WalletScreen() {
     const [ready, setReady] = useState(false);
-    const [tab, setTab] = useState('create'); // 'create' | 'import' | 'portfolio'
+    const [tab, setTab] = useState('create'); // 'create' | 'import' | 'portfolio' tabs
     const [wallets, setWallets] = useState([]);
     const [selectedWalletId, setSelectedWalletId] = useState(null);
     const [accounts, setAccounts] = useState([]);
@@ -215,7 +216,7 @@ export default function WalletScreen() {
                         renderItem={({ item }) => (
                             <TouchableOpacity onPress={() => onSelectWallet(item.id)} style={[styles.walletItem, selectedWalletId === item.id && styles.walletItemActive]}>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={styles.walletName}>{item.name}</Text>
+                                    <Text style={styles.textBold}>{item.name}</Text>
                                     <Text style={styles.walletSub}>Created: {new Date(item.created_at).toLocaleString()}</Text>
                                 </View>
                                 <TouchableOpacity onPress={() => onDeleteWallet(item.id)}>
@@ -237,11 +238,11 @@ export default function WalletScreen() {
                                 renderItem={({ item }) => (
                                     <View style={styles.accountRow}>
                                         <View style={{ flex: 1 }}>
-                                            <Text style={styles.chainName}>{item.chain_name} ({item.chain_symbol})</Text>
+                                            <Text style={styles.textBold}>{item.chain_name} ({item.chain_symbol})</Text>
                                             <Text style={styles.address}>{item.address}</Text>
                                         </View>
                                         {/* Balance placeholder — wire your RPC here */}
-                                        <Text style={styles.balance}>—</Text>
+                                        <Text style={styles.textBold}>—</Text>
                                     </View>
                                 )}
                             />
@@ -271,17 +272,60 @@ function Button({ label, onPress }) {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0B1220' },
-    center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0B1220' },
-    title: { color: 'white', fontSize: 20, fontWeight: '600' },
-    tabs: { flexDirection: 'row', padding: 12, gap: 8, zIndex: 1, paddingTop: 60 },
-    tab: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, backgroundColor: '#121A2A', flex: 1 },
-    tabActive: { backgroundColor: '#1E2A44' },
-    tabText: { color: '#9FB0CF', fontWeight: '600' },
-    tabTextActive: { color: 'white' },
-    section: { flex: 1, padding: 16 },
-    h2: { color: 'white', fontSize: 18, fontWeight: '700', marginBottom: 12 },
-    label: { color: '#9FB0CF', marginTop: 10, marginBottom: 4 },
+    container: {
+        flex: 1,
+        backgroundColor: '#0B1220'
+    },
+    center: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#0B1220'
+    },
+    title: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: '600'
+    },
+    tabs: {
+        flexDirection: 'row',
+        padding: 12,
+        gap: 8,
+        zIndex: 1,
+        paddingTop: 60
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        borderRadius: 10,
+        backgroundColor: '#121A2A',
+    },
+    tabActive: {
+        backgroundColor: '#1E2A44'
+    },
+    tabText: {
+        color: '#9FB0CF',
+        fontWeight: '600'
+    },
+    tabTextActive: {
+        color: 'white'
+    },
+    section: {
+        flex: 1,
+        padding: 16
+    },
+    h2: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: '700',
+        marginBottom: 12
+    },
+    label: {
+        color: '#9FB0CF',
+        marginTop: 10,
+        marginBottom: 4
+    },
     input: {
         backgroundColor: '#111827',
         color: 'white',
@@ -290,7 +334,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 12,
     },
-    row: { flexDirection: 'row', marginTop: 12 },
+    row: {
+        flexDirection: 'row',
+        marginTop: 12
+    },
     button: {
         backgroundColor: '#2563EB',
         paddingVertical: 12,
@@ -298,16 +345,51 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignSelf: 'flex-start',
     },
-    buttonText: { color: 'white', fontWeight: '700' },
-    hint: { color: '#9FB0CF', marginTop: 10, fontSize: 12 },
-    divider: { height: 1, backgroundColor: '#1E2A44', marginVertical: 8 },
-    walletItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
-    walletItemActive: { backgroundColor: 'rgba(37,99,235,0.08)', borderRadius: 8, paddingHorizontal: 8 },
-    walletName: { color: 'white', fontWeight: '700' },
-    walletSub: { color: '#9FB0CF', fontSize: 12 },
-    delete: { color: '#EF4444', fontWeight: '700', padding: 8 },
-    accountRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
-    chainName: { color: 'white', fontWeight: '700' },
-    address: { color: '#9FB0CF', fontSize: 12, marginTop: 4 },
-    balance: { color: 'white', fontWeight: '700' },
+    buttonText: {
+        color: 'white',
+        fontWeight: '700'
+    },
+    hint: {
+        color: '#9FB0CF',
+        marginTop: 10,
+        fontSize: 12
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#1E2A44',
+        marginVertical: 8
+    },
+    walletItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10
+    },
+    walletItemActive: {
+        backgroundColor: 'rgba(37,99,235,0.08)',
+        borderRadius: 8,
+        paddingHorizontal: 8
+    },
+    walletSub: {
+        color: '#9FB0CF',
+        fontSize: 12
+    },
+    delete: {
+        color: '#EF4444',
+        fontWeight: '700',
+        padding: 8
+    },
+    accountRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8
+    },
+    textBold: {
+        color: 'white',
+        fontWeight: '700'
+    },
+    address: {
+        color: '#9FB0CF',
+        fontSize: 12,
+        marginTop: 4
+    },
 });
