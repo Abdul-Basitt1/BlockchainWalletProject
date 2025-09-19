@@ -16,6 +16,7 @@
     "@ethersproject/wallet": "^5.8.0",
     "bip39": "^3.1.0",
     "buffer": "^6.0.3",
+    "ethers": "^6.15.0",
     "react": "19.1.0",
     "react-native": "0.81.4",
     "react-native-get-random-values": "^1.11.0",

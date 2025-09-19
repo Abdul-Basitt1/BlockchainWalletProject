@@ -14,25 +14,21 @@ export default function WalletScreen() {
     const [selectedWalletId, setSelectedWalletId] = useState(null);
     const [accounts, setAccounts] = useState([]);
     const [chains, setChains] = useState([]);
-
-    // Create form
     const [newName, setNewName] = useState('My Wallet');
     const [generatedMnemonic, setGeneratedMnemonic] = useState('');
-
-    // Import form
     const [importName, setImportName] = useState('Imported Wallet');
     const [importMnemonic, setImportMnemonic] = useState('');
 
     useEffect(() => {
         (async () => {
             await initDB();
-            const cs = await getChains();
-            setChains(cs);
-            const ws = await getWallets();
-            setWallets(ws);
-            if (ws[0]) {
-                setSelectedWalletId(ws[0].id);
-                const accts = await getAccountsByWallet(ws[0].id);
+            const chains = await getChains();
+            setChains(chains);
+            const wallets = await getWallets();
+            setWallets(wallets);
+            if (wallets[0]) {
+                setSelectedWalletId(wallets[0].id);
+                const accts = await getAccountsByWallet(wallets[0].id);
                 setAccounts(accts);
             }
             setReady(true);
@@ -42,9 +38,9 @@ export default function WalletScreen() {
     const selectedWallet = useMemo(() => wallets.find(w => w.id === selectedWalletId) || null, [wallets, selectedWalletId]);
 
     async function refreshWalletsAndAccounts(targetWalletId) {
-        const ws = await getWallets();
-        setWallets(ws);
-        const wid = targetWalletId || (ws[0] ? ws[0].id : null);
+        const wallets = await getWallets();
+        setWallets(wallets);
+        const wid = targetWalletId || (wallets[0] ? wallets[0].id : null);
         setSelectedWalletId(wid);
         if (wid) {
             const accts = await getAccountsByWallet(wid);
@@ -55,8 +51,8 @@ export default function WalletScreen() {
     }
 
     function onGenerateMnemonic() {
-        const m = generateMnemonic();
-        setGeneratedMnemonic(m);
+        const mnemonic = generateMnemonic();
+        setGeneratedMnemonic(mnemonic);
     }
 
     async function onCreateWallet() {
@@ -291,8 +287,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 12,
         gap: 8,
-        zIndex: 1,
-        paddingTop: 60
+        // zIndex: 1,
     },
     tab: {
         flex: 1,
