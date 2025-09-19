@@ -14,7 +14,6 @@
     "@ethersproject/hdnode": "^5.8.0",
     "@ethersproject/keccak256": "^5.8.0",
     "@ethersproject/wallet": "^5.8.0",
-    "@react-native/new-app-screen": "0.81.4",
     "bip39": "^3.1.0",
     "buffer": "^6.0.3",
     "react": "19.1.0",

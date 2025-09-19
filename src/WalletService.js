@@ -2,12 +2,8 @@ import * as bip39 from 'bip39';
 import { HDNode } from '@ethersproject/hdnode';
 import { arrayify } from '@ethersproject/bytes';
 
-/**
- * Derive an EVM account (address + pk) from mnemonic + derivation path.
- * We keep it simple: same path for EVM chains so the address matches across ETH/Polygon/BSC.
- */
-export function deriveEvmAccountFromMnemonic(mnemonic, derivationPath) {
-    const seed = bip39.mnemonicToSeedSync(mnemonic); // Buffer
+export async function deriveEvmAccountFromMnemonic(mnemonic, derivationPath) {
+    const seed = await bip39.mnemonicToSeed(mnemonic); // Buffer
     const master = HDNode.fromSeed(arrayify(seed));
     const child = master.derivePath(derivationPath);
     return {
@@ -17,7 +13,7 @@ export function deriveEvmAccountFromMnemonic(mnemonic, derivationPath) {
 }
 
 export function generateMnemonic(strength = 128) {
-    return bip39.generateMnemonic(strength); // 12 words by default
+    return bip39.generateMnemonic(strength); // 128 means 12 words
 }
 
 export function validateMnemonic(m) {
